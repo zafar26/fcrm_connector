@@ -4,7 +4,8 @@ app_publisher = "Zafar"
 app_description = "Connector for Frappe CRM to ERPNext "
 app_email = "mohammedzafar088@gmail.com"
 app_license = "mit"
-# required_apps = []
+
+required_apps = ["erpnext", "crm"]
 
 # Includes in <head>
 # ------------------
@@ -227,3 +228,19 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+
+fixtures=[
+     {
+        "dt": "Custom Field", 
+        "filters": {
+            "module": ["in", ["FCRM Connector"]]
+        }
+    },
+    {
+        "dt": "Property Setter", 
+        "filters": {
+            "module": ["in", ["FCRM Connector"]]
+        }
+    },
+    "CRM Form Script",
+]
