@@ -13,8 +13,10 @@ def create_quotation(doctype, name):
         for each in deal.contacts:
             if each.is_primary:
                 contact_person = each.contact
+        
         # Set Prospect Name 
         prospect_name = deal.lead_name
+        
         if deal.organization:
             prospect_name = deal.organization 
 
@@ -25,6 +27,7 @@ def create_quotation(doctype, name):
                 "is_primary_address": 1,
                 "disabled": 0
         })
+
         # Get Prospect 
         prospect = frappe.db.get_list("Prospect",filters={
             "company_name": prospect_name
@@ -42,34 +45,35 @@ def create_quotation(doctype, name):
             # prospect.custom_deal = deal.name
             prospect.insert()
         
-        # Create Quotation
-        quotation = frappe.new_doc("Quotation")
-        quotation.quotation_to = "Prospect"
-        quotation.party_name = prospect.name        
-        quotation.customer_name = prospect.name
-        quotation.website = deal.website
-        quotation.territory = deal.territory
-        quotation.annual_revenue = deal.annual_revenue
-        quotation.close_date = deal.close_date
-        quotation.probability = deal.probability
-        quotation.lead = deal.lead
-        quotation.lead_source = deal.source
-        quotation.lead_name = deal.lead_name
-        quotation.deal_owner = deal.deal_owner
-        quotation.mobile_no = deal.mobile_no
-        quotation.email = deal.email
-        quotation.deal = deal.name
-        quotation.contact_person = contact_person
-        quotation.custom_deal = deal.name
-        quotation.grand_total = 1 
-        quotation.base_grand_total = 1 
-        quotation.base_rounded_total = 1 
-        quotation.rounded_total = 1
+        # Create Quotation IF NOT EXIST
+        if not frappe.db.exists("Quotation", {"custom_deal": deal.name}):
+            quotation = frappe.new_doc("Quotation")
+            quotation.quotation_to = "Prospect"
+            quotation.party_name = prospect.name        
+            quotation.customer_name = prospect.name
+            quotation.website = deal.website
+            quotation.territory = deal.territory
+            quotation.annual_revenue = deal.annual_revenue
+            quotation.custom_close_date = deal.closed_date
+            quotation.probability = deal.probability
+            quotation.lead = deal.lead
+            quotation.lead_source = deal.source
+            quotation.lead_name = deal.lead_name
+            quotation.deal_owner = deal.deal_owner
+            quotation.mobile_no = deal.mobile_no
+            quotation.email = deal.email
+            quotation.custom_deal = deal.name
+            quotation.contact_person = contact_person
+            quotation.custom_deal = deal.name
+            quotation.grand_total = 1 
+            quotation.base_grand_total = 1 
+            quotation.base_rounded_total = 1 
+            quotation.rounded_total = 1
 
-        if address and address[0].name:
-            quotation.company_address = address[0].name
-
-        quotation.save()
+            if address and address[0].name:
+                quotation.company_address = address[0].name
+            quotation.insert(ignore_links=True, ignore_if_duplicate=True, ignore_mandatory=True)
+    
         # Return Succes Message
         return {"success" : True,
         'Mesage': "Created Succesfully"}
